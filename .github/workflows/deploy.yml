@@ -1,25 +1,58 @@
-name: Build and Push Docker Image
+name: Build, Push, and Deploy Docker Image to EC2
+
 on:
-    push:
-        branches:
-            - main
+  push:
+    branches:
+      - main
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-          - name: Checkout code
-            uses: actions/checkout@v3
-          - name: Set up Docker Buildx
-            uses: docker/setup-buildx-action@v2
-          - name: log in to Docker Hub
-            uses: docker/login-action@v2
-            with:
-                username: ${{ secrets.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
-          - name: Build Docker image  # Construye la imagen Docker con el tag del commit actual (github.sha)
-            run: |
-              docker build --label "commit_sha" -t cristinacolcha/saludo:${{github.sha}} .
-          - name: Push Docker image  # Empuja la imagen construida a Docker Hub
-            run: |
-              docker push cristinacolcha/saludo:${{ github.sha }}
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      EC2_HOST: ${{ secrets.EC2_HOST }}
+      EC2_USER: ${{ secrets.EC2_USER }}
+      EC2_KEY: ${{ secrets.EC2_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+      - name: Build Docker image
+        run: |
+          docker build --label "commit_sha" -t cristinacolcha/saludo:${{ github.sha }} .
+
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push cristinacolcha/saludo:${{ github.sha }}
+
+      - name: Deploy Docker image to EC2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            # Actualiza el sistema y Docker
+            sudo apt-get update -y
+            sudo apt-get install docker.io -y
+
+            # Descarga la imagen más reciente de Docker Hub
+            docker pull cristinacolcha/saludo:${{ github.sha }}
+
+            # Detiene y elimina el contenedor existente (si existe)
+            docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }})" && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }})"
+
+            # Ejecuta el contenedor con la nueva imagen
+            docker run -d --name saludo-${{ github.sha }} cristinacolcha/saludo:${{ github.sha }}
+
+            # (Opcional) Verifica si el contenedor se está ejecutando
+            docker ps
