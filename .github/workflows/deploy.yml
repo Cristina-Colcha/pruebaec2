@@ -52,21 +52,18 @@ jobs:
             sudo systemctl start docker
             sudo systemctl enable docker
 
+            
+
             # Detiene y elimina el contenedor existente (si existe)
-            existing_container=$(sudo docker ps -aq --filter "name=saludo")
-            if [ -n "$existing_container" ]; then
-                echo "Deteniendo y eliminando el contenedor existente con ID: $existing_container"
-                sudo docker stop "$existing_container"
-                sudo docker rm "$existing_container"
-            else
-                echo "No hay contenedor existente con el nombre 'saludo'."
-            fi
+            sudo docker ps -q --filter "name=saludo" | grep -q . && sudo docker stop $(sudo docker ps -q --filter "name=saludo") && sudo docker rm $(sudo docker ps -q --filter "name=saludo")
 
             # Descarga la imagen más reciente de Docker Hub
             sudo docker pull cristinacolcha/saludo:v${{github.run_number}}
+
 
             # Ejecuta el contenedor con la nueva imagen
             sudo docker run -d -p 3000:3000 --name saludo cristinacolcha/saludo:v${{github.run_number}}
 
             # (Opcional) Verifica si el contenedor se está ejecutando
             sudo docker ps
+            
