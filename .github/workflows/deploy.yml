@@ -1,0 +1,46 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Clonar el repositorio
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Configurar AWS CLI
+    - name: Configure AWS CLI
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1  # Cambia según tu región
+
+    # Construir la imagen Docker
+    - name: Build Docker Image
+      run: |
+        docker build -t my-app .
+
+    # Subir imagen a Docker Hub o ECR (Amazon)
+    - name: Push Docker Image to ECR
+      run: |
+        aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <YOUR_ECR_REPOSITORY>
+        docker tag my-app:latest <YOUR_ECR_REPOSITORY>:latest
+        docker push <YOUR_ECR_REPOSITORY>:latest
+
+    # Conectar a la instancia EC2 y desplegar
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu  # Cambia según tu configuración
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          docker pull <YOUR_ECR_REPOSITORY>:latest
+          docker run -d -p 3000:3000 <YOUR_ECR_REPOSITORY>:latest
