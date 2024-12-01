@@ -50,7 +50,8 @@ jobs:
             docker pull cristinacolcha/saludo:${{ github.sha }}
 
             # Detiene y elimina el contenedor existente (si existe)
-            docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }})" && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }})"
+            docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}")
+
 
             # Ejecuta el contenedor con la nueva imagen
             docker run -d --name saludo-${{ github.sha }} cristinacolcha/saludo:${{ github.sha }}
