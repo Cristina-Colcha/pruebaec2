@@ -3,7 +3,7 @@ name: Build, Push, and Deploy Docker Image to EC2
 on:
   push:
     branches:
-            - main  
+            - main  # Se mantiene el trigger para ambas ramas
 
 jobs:
   build-and-deploy:
@@ -56,9 +56,13 @@ jobs:
             sudo docker pull cristinacolcha/saludo:v${{github.run_number}}
 
             # Detiene y elimina el contenedor existente (si existe)
-            sudo docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}")
+            sudo docker ps -q --filter "name=saludo" | grep -q . && sudo docker stop $(sudo docker ps -q --filter "name=saludo") && sudo docker rm $(sudo docker ps -q --filter "name=saludo")
+
 
             # Ejecuta el contenedor con la nueva imagen
-            sudo docker run -d -p 3000:3000 --name saludo cristinacolcha/saludo:v${{github.run_number}} 
+            sudo docker run -d -p 3000:3000 --name saludo cristinacolcha/saludo:v${{github.run_number}}
+
+
             # (Opcional) Verifica si el contenedor se está ejecutando
-            sudo docker ps 
+            sudo docker ps
+            
