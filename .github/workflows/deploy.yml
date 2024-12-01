@@ -19,7 +19,7 @@ jobs:
                 password: ${{ secrets.DOCKER_PASSWORD }}
           - name: Build Docker image  # Construye la imagen Docker con el tag del commit actual (github.sha)
             run: |
-              docker build --label "commit_sha" -t saludo:${{github.sha}} .
+              docker build --label "commit_sha" -t cristinacolcha/saludo:${{github.sha}} .
           - name: Push Docker image  # Empuja la imagen construida a Docker Hub
             run: |
-              docker push saludo:${{ github.sha }}
+              docker push cristinacolcha/saludo:${{ github.sha }}
