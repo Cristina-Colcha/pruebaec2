@@ -42,8 +42,9 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             # Actualiza el sistema y Docker
-            sudo apt-get update -y
-            sudo apt-get install docker.io -y
+            sudo yum update -y
+            sudo yum install docker -y
+
 
             # Descarga la imagen más reciente de Docker Hub
             docker pull cristinacolcha/saludo:${{ github.sha }}
