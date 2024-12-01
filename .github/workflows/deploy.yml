@@ -54,13 +54,13 @@ jobs:
             sudo systemctl enable docker
 
             # Descarga la imagen más reciente de Docker Hub
-            docker pull cristinacolcha/saludo:v${{github.run_number}}
+            sudo docker pull cristinacolcha/saludo:v${{github.run_number}}
 
             # Detiene y elimina el contenedor existente (si existe)
-            docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}")
+            sudo docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}")
 
             # Ejecuta el contenedor con la nueva imagen
-            docker run -d -p 80:3000 --name saludo:v${{github.run_number}} cristinacolcha/saludo:v${{github.run_number}}
+            sudo docker run -d -p 80:3000 --name saludo:v${{github.run_number}} cristinacolcha/saludo:v${{github.run_number}}
 
             # (Opcional) Verifica si el contenedor se está ejecutando
-            docker ps
+            sudo docker ps
