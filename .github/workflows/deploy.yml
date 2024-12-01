@@ -3,7 +3,8 @@ name: Build, Push, and Deploy Docker Image to EC2
 on:
   push:
     branches:
-      - main
+      - feature/aws-docker-integration
+      - main  # Se mantiene el trigger para ambas ramas
 
 jobs:
   build-and-deploy:
@@ -17,23 +18,28 @@ jobs:
       EC2_KEY: ${{ secrets.EC2_KEY }}
 
     steps:
+      # Paso 1: Checkout del código
       - name: Checkout code
         uses: actions/checkout@v2
 
+      # Paso 2: Configuración de Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
+      # Paso 3: Login a Docker Hub
       - name: Login to DockerHub
         run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 
+      # Paso 4: Construcción de la imagen Docker
       - name: Build Docker image
         run: |
-          docker build --label "commit_sha" -t cristinacolcha/saludo:${{ github.sha }} .
+          docker build --label "commit_sha" -t cristinacolcha/saludo:v${{github.run_number}} .
 
+      # Paso 5: Push de la imagen Docker a Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
-          docker push cristinacolcha/saludo:${{ github.sha }}
-
+          docker push cristinacolcha/saludo:v${{github.run_number}}
+      # Paso 6: Despliegue de la imagen Docker en EC2
       - name: Deploy Docker image to EC2
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -44,18 +50,17 @@ jobs:
             # Actualiza el sistema y Docker
             sudo yum update -y
             sudo yum install docker -y
-
-            
+            sudo systemctl start docker
+            sudo systemctl enable docker
 
             # Descarga la imagen más reciente de Docker Hub
-            docker pull cristinacolcha/saludo:${{ github.sha }}
+            docker pull cristinacolcha/saludo:v${{github.run_number}}
 
             # Detiene y elimina el contenedor existente (si existe)
-            docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:${{ github.sha }}")
-
+            docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}" | grep -q . && docker stop $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}") && docker rm $(docker ps -q --filter "ancestor=cristinacolcha/saludo:v${{github.run_number}}")
 
             # Ejecuta el contenedor con la nueva imagen
-            docker run -d --name saludo-${{ github.sha }} cristinacolcha/saludo:${{ github.sha }}
+            docker run -d -p 80:3000 --name saludo:v${{github.run_number}} cristinacolcha/saludo:v${{github.run_number}}
 
             # (Opcional) Verifica si el contenedor se está ejecutando
             docker ps
