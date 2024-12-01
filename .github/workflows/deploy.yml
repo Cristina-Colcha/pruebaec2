@@ -50,9 +50,15 @@ jobs:
             sudo yum update -y
             sudo yum install docker -y
             sudo systemctl start docker
-            sudo systemctl enable docker          
-
-            # Detener y eliminar cualquier contenedor existente con el nombre "saludo"
+            sudo systemctl enable docker    
+            # Verifica si el puerto está en uso y elimina cualquier contenedor conflictivo
+            if sudo lsof -i :3000; then
+                echo "El puerto 3000 está en uso. Deteniendo el servicio asociado..."
+                sudo docker ps -q --filter "publish=3000" | grep -q . && \
+                sudo docker stop $(sudo docker ps -q --filter "publish=3000") && \
+                sudo docker rm $(sudo docker ps -q --filter "publish=3000")
+            fi
+                  # Detener y eliminar cualquier contenedor existente con el nombre "saludo"
             if [ "$(sudo docker ps -aq -f name=saludo)" ]; then
                 echo "Eliminando contenedor existente..."
                 sudo docker stop saludo || true
