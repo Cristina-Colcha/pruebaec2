@@ -58,7 +58,7 @@ jobs:
                 sudo docker stop $(sudo docker ps -q --filter "publish=3000") && \
                 sudo docker rm $(sudo docker ps -q --filter "publish=3000")
             fi
-                  # Detener y eliminar cualquier contenedor existente con el nombre "saludo"
+            # Detener y eliminar cualquier contenedor existente con el nombre "saludo"
             if [ "$(sudo docker ps -aq -f name=saludo)" ]; then
                 echo "Eliminando contenedor existente..."
                 sudo docker stop saludo || true
