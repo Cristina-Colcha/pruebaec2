@@ -45,9 +45,7 @@ jobs:
             sudo yum update -y
             sudo yum install docker -y
 
-            # Inicia el demonio de Docker
-            sudo systemctl start docker
-            sudo systemctl enable docker
+            
 
             # Descarga la imagen más reciente de Docker Hub
             docker pull cristinacolcha/saludo:${{ github.sha }}
