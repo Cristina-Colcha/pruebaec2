@@ -3,7 +3,7 @@ name: Build, Push, and Deploy Docker Image to EC2
 on:
   push:
     branches:
-            - main  # Se mantiene el trigger para ambas ramas
+            - main  
 
 jobs:
   build-and-deploy:
