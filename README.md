@@ -42,6 +42,7 @@ Welcome! This project is a simple monolithic application created with Node.js. I
 1. Clone this repository:
 
    git clone https://github.com/Cristina-Colcha/pruebaec2.git
+   
    cd pruebaec2
 2. Install dependencies:
     npm install
@@ -52,27 +53,27 @@ Welcome! This project is a simple monolithic application created with Node.js. I
 ## With Docker
 1. Build the image:
 
-docker build -t pruebaec2 .
+    docker build -t pruebaec2 .
 2. Run the container:
 
     docker run -p 3000:3000 pruebaec2 .
     Open in browser: Visit http://localhost:3000.
 
 ## Automatic Deployment with GitHub Actions
-Configuration file: The application includes a file called .github/workflows/deploy.yml that automates the deployment.
+1. Configuration file: The application includes a file called .github/workflows/deploy.yml that automates the deployment.
 
-1. Set up credentials: Make sure to set up the necessary credentials (such as access keys or secrets) in the GitHub repository.
+2. Set up credentials: Make sure to set up the necessary credentials (such as access keys or secrets) in the GitHub repository.
 Follow the instructions in the deploy.yml file to customize the workflow.
-2. Deploy: Every time you push to the main branch, the workflow will automatically build and deploy the application.
+3. Deploy: Every time you push to the main branch, the workflow will automatically build and deploy the application.
 
 ## Interface.
-Main page:
-A simple interface that allows you to enter your name and receive a greeting.
+    Main page:
+    A simple interface that allows you to enter your name and receive a greeting.
 
-Custom Greeting:
-Enter a name, press “Greet” and you will get a response like:
+    Custom Greeting:
+    Enter a name, press “Greet” and you will get a response like:
 
-“Hi, Ana! Hope you're having a great day. 🌟”
+    “Hi, Ana! Hope you're having a great day. 🌟”
 ## AUTHOR
-Cristina Colcha
-🚀 This README is now ready to highlight the functionality and ease of deployment of your application!
+    Cristina Colcha
+    🚀 This README is now ready to highlight the functionality and ease of deployment of your application!
